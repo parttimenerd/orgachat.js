@@ -1,0 +1,42 @@
+.panel {
+	height: 100%;
+}
+#header {
+	font-size: 2em;
+	width: 100%;
+	border-bottom: black;
+	top: 0px;
+	z-index: 100;
+	text-align: center;
+	position: fixed;
+	background-color: white;
+}
+.messages .time, .messages .group {
+	width: 1cm !important;
+}
+.messages .msg span {
+	width: 50%;
+}
+.messages table {
+	height: 100%;
+}
+#chat {
+	display: scroll;
+	max-height: 100%;
+	margin-top: 3em;
+	margin-bottom: -1em;
+	border-bottom: none;
+	box-shadow: none;
+}
+#chat_inputs {
+	bottom: 0px;
+	z-index: 100;
+	position: fixed;
+	width: 100%;
+}
+.result_input {
+	width: 100%;
+}
+.result_input button {
+	width: 100%;
+}

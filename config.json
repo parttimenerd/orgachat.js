@@ -1,0 +1,22 @@
+{
+	"pwds": {
+		"1": "abc",
+		"2": "abc",
+		"admin": "abcd"
+	},
+	"participants": ["AB", "AC"],
+	"part_groups": {
+		"Ratefuechse": ["AB", "AC"]
+	},
+	"rounds": [
+		{
+			"1": ["AB", "AC"],
+			"2": ["AB", "AC"]
+		}
+	],
+	"ranking": {
+		"max_points_per_game": 100,
+		"non_participation_gives_zero_points": true,
+		"normalize_overall_points": true
+	}
+}

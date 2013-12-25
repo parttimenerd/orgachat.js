@@ -22,6 +22,7 @@ socket.on("connect", function(){
 	});
 	socket.on('set_station', function(type, station){
 		$("#station_number").text(station);
+		pingNTimes(1);
 	});
 	socket.on("round_timer_start", function(){
 		$("#header").text("New round begins soon");

@@ -39,6 +39,7 @@ onconnect = function(){
 		$(".result_input span.part_one").text(data[0]);
 		$(".result_input span.part_two").text(data[1]);
 		$(".result_input button").attr("disabled", false);
+		pingNTimes(1);
 	});
 	socket.on('ping', function(){
 		pingNTimes(1);

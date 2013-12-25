@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Orgachat</title>
+		<link href="../css/styles.css" rel="stylesheet"/>
+		<link href="../css/bootstrap.min.css" rel="stylesheet"/>
+		<link href="css/style.css" rel="stylesheet"/>
+	</head>
+	<body>
+		<div id="header"></div>
+		<div id="chat">
+				<div class="content center-block jumbotron">
+					<h1 id="station_number">3</h1>
+					<small>This is the station you should be now.</small>
+				</div>
+		</div>
+		<div id="register_modal" class="modal fade">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close">&times;</button>
+						<h4 class="modal-title">Register</h4>
+					</div>
+					<div class="modal-body">
+						<p>
+						<form class="form-horizontal" role="form">
+							<div class="form-group">
+								<label for="part_input" class="col-sm-2 control-label">Participant</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" id="part_input" placeholder="participant">
+								</div>
+							</div>
+						</form>
+						</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" id="register_modal_btn">Register</button>
+					</div>
+				</div>
+				<!-- /.modal-content -->
+			</div>
+			<!-- /.modal-dialog -->
+		</div>
+		<!-- /.modal -->
+		<script src="../client_js/socket.io.js"></script>
+		<script src="../client_js/jquery.js"></script>
+		<script src="../client_js/bootstrap.min.js"></script>
+		<script src="../client_js/micro_libs.min.js"></script>
+		<script src="js/client.js"></script>
+	</body>
+</html>

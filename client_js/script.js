@@ -7,12 +7,14 @@ var approved = false,
 	
 var currentReconnectCounter = 0;
 
-var socket = io.connect(window.location.protocol + "//" + window.location.host + ":8010",
-				{'connect timeout': 1000 * 5});
+var socket = io.connect(window.location.protocol + "//" + window.location.host + ":8010");
 
 var ping = AudioFX("audio/ping", { formats: ['ogg', 'mp3'], volume: 0.5});
 
 onconnect = function(){
+	if (pwd !== undefined){
+		socket.emit("login", {'pwd': pwd, 'group': group, 'show_login_msg': false});
+	}
 	socket.on('pwd_okay', function(data){
 		$("#login_modal").modal('hide');
 		$("#header").html('Group <span class="group_name">' + group + '</span>');
@@ -39,11 +41,10 @@ onconnect = function(){
 		$(".result_input button").attr("disabled", false);
 	});
 	socket.on('ping', function(){
-		ping.stop();
-		ping.play();
+		pingNTimes(1);
 	});
 	socket.on("round_timer_start", function(){
-		$("#header").text("New round begins");
+		$("#header").text("New round begins soon");
 		pingNTimes(3);
 	});
 	socket.on("round_timer", function(_, time_str){
@@ -53,13 +54,12 @@ onconnect = function(){
 		$("#header").html(header_text);
 		pingNTimes(3);
 	});
-	socket.on("disconnect", function(){
+	/*socket.on("disconnect", function(){
 		if (approved){
 			if (showConsoleLog)
 				console.log("reconnecting...");
 			timeout = setTimeout(function(){
-				socket = io.connect(window.location.protocol + "//" + window.location.host + ":8010",
-				{'connect timeout': 5 * 1000});
+				socket = io.connect(window.location.protocol + "//" + window.location.host + ":8010");
 				currentReconnectCounter++;
 				socket.on('connect', function(){ 
 					if (showConsoleLog)
@@ -69,16 +69,20 @@ onconnect = function(){
 				socket.emit("login", {'pwd': pwd, 'group': group, 'show_login_msg': false});
 			}, 2000);
 		}
-	});
+	});*/
 	if (showConsoleLog)
 		console.log(socket);
 	trimSocketEvents(socket);
 }
 
+socket.on('connect', onconnect);
+
 function pingNTimes(n){
 	for (i = 0; i < 3; i++){
 		setTimeout(function(){
-			ping.stop();
+			try {
+				ping.stop();
+			} catch(err){}
 			ping.play();
 		}, i * 1500);
 	}
@@ -98,8 +102,6 @@ function trimSocketEvents(soc){
 	}
 	return soc;
 }
-
-socket.on('connect', onconnect);
 
 function scrollChat(){
 	//$('html, body').animate({scrollTop: $('body')[0].scrollHeight - $(window).height()}, 200);

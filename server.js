@@ -4,6 +4,7 @@
       _ = require('underscore'),
 	  utils = require('./utils.js'),
 	  result_utils = require('./result_utils.js'),
+	  util = require("util"),
 	  results = {};
       
 app.listen(8010);
@@ -13,7 +14,8 @@ try {
 	results = JSON.parse(fs.readFileSync('results.json'));
 } catch(err){}
 
-var app_sockets = [];	  
+var app_sockets = [];
+var part_sockets = [];	  
 var admin_socket;
 var results_changed = false;
 var round_data;
@@ -60,17 +62,29 @@ io.sockets.on('connection', function(socket){
 		}
 	});
 	socket.on('disconnect', function(){
+		if (socket["part_name"] !== undefined){
+			part_sockets = _.without(part_sockets, socket);
+			return;
+		}
 		if (!socket.approved)
 			return;
 		app_sockets = _.without(app_sockets, socket);
 		sendBotMsg(utils.time(), '', "User of group " + socket.group + " left.");
 		if (socket.group === "admin")
-				admin_socket = undefined;
+			admin_socket = undefined;
 	})
 	socket.on('result', function(data){
 		if (!socket.approved)
 			socket.disconnect('unauthorized')
 		storeResult(socket.group, data["part_one"], data["part_two"], data["result_one"], data["result_two"]);
+	});
+	socket.on("register_part", function(part_name){
+		if (_.contains(config.participants, part_name)){
+			part_sockets.push(socket);
+			socket.emit("registered", "SERVER", "");
+			util.debug("Registered participant " + part_name);
+			socket.part_name = part_name;
+		}
 	});
 });
 
@@ -86,15 +100,14 @@ function setRound(round_number){
 
 function emitRoundDataToSocket(socket){
 	if (round_data === undefined)
-		console.error("no round_data");
+		util.error("no round_data");
 	if (socket.group === "admin"){
 		adminBotMessage("Round " + round_data["round_number"]);
 	} else {
 		if (round_data[socket.group] !== undefined){
-			console.log(socket.group);
 			socket.emit("set_round", "SERVER", round_data[socket.group]);
 		} else {
-			console.error("group " + socket.group + " has no round data");
+			util.error("group " + socket.group + " has no round data");
 		}
 	}
 }
@@ -103,6 +116,27 @@ function emitRoundDataToAll(socket){
 	_.each(app_sockets, function(soc){
 		emitRoundDataToSocket(soc);
 	})
+	_.each(part_sockets, function(part_soc){
+		var next_station;
+		_.each(round_data, function(group_arr, group_name){
+			util.debug(JSON.stringify(group_arr));
+			util.debug(part_soc.part_name);
+			for (i = 0; i < group_arr.length; i++)
+				if (group_arr[i] === part_soc.part_name)
+					next_station = group_name;
+		})
+		if (next_station === undefined){
+			adminBotMessage("Participant " + part_name + " has no station to go.");
+		} else {
+			part_soc.emit("set_station", "SERVER", next_station);
+		}
+	});
+}
+
+function emitToAllParticipants(cmd, data){
+	_.each(part_sockets, function(part_soc){
+		part_soc.emit(cmd, "SERVER", data);
+	});
 }
 
 var msg_commands = {
@@ -137,10 +171,16 @@ var msg_commands = {
 			emitRanking(admin_socket);
 		}
 	},
-	"online": {
+	"online_g": {
 		"help_text": "#online - shows the groups that are currently only with one or more users",
 		"function": function(args){
 			emitGroupsOnline(admin_socket);
+		}
+	},
+	"online": {
+		"help_text": "#online - shows the groups and participants that are currently only with one or more users",
+		"function": function(args){
+			emitOnline(admin_socket);
 		}
 	},
 	"ping": {
@@ -170,6 +210,7 @@ function parseAdminMsg(msg){
 		msg_commands[cmd]["function"](args);
 	} catch (err){
 		adminBotMessage("I don't understand: '" + msg + "'");
+		util.error(err.name + ":" + err.stack);
 	}
 }
 
@@ -244,6 +285,15 @@ function emitGroupsOnline(socket){
 	sendBotMsg(socket, str, "");
 }
 
+function emitOnline(socket){
+	var str = _.map(getGroupsOnline(), function(group){
+		return "Group " + group + "<br/>";
+	}).join("\n<br\>") + _.map(getParticipantsOnline(), function(part_name){
+		return "Participant " + part_name;
+	}).join("\n<br\>");
+	sendBotMsg(socket, str, "");
+}
+
 function emitRanking(socket){
 	var part_groups = result_utils.ranking(config, results).reverse();
 	var list_items = _.map(part_groups, function(part_group){
@@ -259,6 +309,12 @@ function getGroupsOnline(){
 	})).sort();
 }
 
+function getParticipantsOnline(){
+	return _.uniq(_.map(part_sockets, function(soc){
+		return soc.part_name;
+	})).sort();
+}
+
 var round_timer_interval;
 //in seconds
 var round_timer_time = 0;
@@ -266,21 +322,18 @@ var round_timer_time = 0;
 function startRoundTimer(){
 	if (round_timer_interval !== undefined)
 		clearInterval(round_timer_interval);
-	_.each(app_sockets, function(soc){
-		soc.emit("round_timer_start", "SERVER", "");
-	});
+	emitToAllAppSockets("round_timer_start", "");
+	emitToAllParticipants("round_timer_start", "");
 	var timer_func = function(){
 		if (round_timer_time + config.round_duration > utils.time()){
-			var time_diff = utils.time() - round_timer_time;
-			var time_str = new Date(time_diff * 1000).getMinutes() + ":" + utils.getSecondsPadded(time_diff);
-			_.each(app_sockets, function(soc){
-				soc.emit("round_timer", "SERVER", time_str);
-			});
+			var time_diff = config.round_duration  - (utils.time() - round_timer_time);
+			var time_str = "-" + new Date(time_diff * 1000).getMinutes() + ":" + utils.getSecondsPadded(time_diff);
+			emitToAllAppSockets("round_timer", time_str);
+			emitToAllParticipants("round_timer", time_str); 
 		} else {
 			clearInterval(round_timer_interval);
-			_.each(app_sockets, function(soc){
-				soc.emit("round_timer_end", "SERVER", "");
-			});
+			emitToAllAppSockets("round_timer_end", "");
+			emitToAllParticipants("round_timer_end", "");
 		}
 	}
 	countdown_start = utils.time();
@@ -292,9 +345,16 @@ function startRoundTimer(){
 			round_timer_time = utils.time();
 			round_timer_interval = setInterval(timer_func, config.round_timer_update_span * 1000);
 		} else {
-			io.sockets.emit("round_timer", "SERVER", "New round in " + diff_seconds + "s");
+			emitToAllAppSockets("round_timer", "New round in " + diff_seconds + "s");
+			emitToAllParticipants("round_timer", "New round in " + diff_seconds + "s");
 		}
 	}, config.round_timer_update_span * 1000);
+}
+
+function emitToAllAppSockets(cmd, data){
+	_.each(app_sockets, function(soc){
+		soc.emit(cmd, "SERVER", data);
+	});
 }
 
 function clearRoundTimer(){

@@ -10,6 +10,7 @@ The admin (group "admin") can set a game round and configure in the config file,
 	- underscore
 
 ##TODO
+- add logging of actions
 - testing
 - manual
 

@@ -197,7 +197,6 @@ $RECYCLE.BIN/
 dist/
 build/
 eggs/
-parts/
 var/
 sdist/
 develop-eggs/

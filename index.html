@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>orgachat.js by parttimenerd</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/parttimenerd/orgachat.js">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/parttimenerd/orgachat.js/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/parttimenerd/orgachat.js/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>orgachat.js</h1>
+          <p>A node.js based chat, used to help organizing olympia like games</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/parttimenerd">parttimenerd</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
+
+        <h3>
+<a name="requirements" class="anchor" href="#requirements"><span class="octicon octicon-link"></span></a>Requirements</h3>
+
+<ul>
+<li>Apache web server</li>
+<li>node.js (&gt;= 0.9)
+
+<ul>
+<li>socket.io</li>
+<li>underscore.js</li>
+<li>winston</li>
+</ul>
+</li>
+<li>(Of course) A device with Internet connection (at least) for each station.</li>
+</ul><h3>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h3>
+
+<ol>
+<li>Download the package and place in into a browser accesible folder of you apache web server. (I assume in the following, that you've choses ´orgachat.js´.)</li>
+<li>Install the node.js required modules via npm.</li>
+<li>Configure the application via its ´config.json´ file.</li>
+<li>Distribute the passwords and station/team names.</li>
+<li>Login as admin at ´orgachat.js´.</li>
+<li>At least one person of each station should login at ´orgachat.js´ and at least one member of each team should register at ´orgachat.js/part´.</li>
+<li>To tell all others that a new round will begin soon, type ´#set_round N´ in to the chat, with ´N´ being the number of the round (round numbers start at zero).
+Team members see then, the station they've to play on next and station people see the next to teams that play against each other in this round.</li>
+<li>Start the round (specifically its timer) by typing ´#start_round_timer´. A timer will now show everyone logged in/registered in the application the count down till the start of the round and after the countdown the time live left in this round.</li>
+<li>The station crew no enters the points each team achieved at their station and send it to the admin by clicking the ´Store´ button.</li>
+<li>Return to 7. if the last round wasn't the final.</li>
+<li>Show the group ranking by typing ´#ranking´.</li>
+</ol><p>And of course, this application, based on a chat, can be used as a chat. </p>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>

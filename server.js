@@ -112,6 +112,16 @@ var msg_commands = {
 			setRound(Number(args[0]));
 		}
 	},
+	"start_round_timer": {
+		"help_text": "#start_round_timer - starts the round timer, counting down from the round_duration to zero",
+		"function": function(){
+			startRoundTimer();
+		}
+	},
+	"end_round_timer": {
+		"help_text": "#end_round_timer - kills the round timer",
+		"function": clearRoundTimer
+	},
 	"help": {
 		"help_text": "#help - shows this help",
 		"function": function(args){
@@ -247,6 +257,51 @@ function getGroupsOnline(){
 	return _.uniq(_.map(app_sockets, function(soc){
 		return soc.group;
 	})).sort();
+}
+
+var round_timer_interval;
+//in seconds
+var round_timer_time = 0;
+
+function startRoundTimer(){
+	if (round_timer_interval !== undefined)
+		clearInterval(round_timer_interval);
+	_.each(app_sockets, function(soc){
+		soc.emit("round_timer_start", "SERVER", "");
+	});
+	var timer_func = function(){
+		if (round_timer_time + config.round_duration > utils.time()){
+			var time_diff = utils.time() - round_timer_time;
+			var time_str = new Date(time_diff * 1000).getMinutes() + ":" + utils.getSecondsPadded(time_diff);
+			_.each(app_sockets, function(soc){
+				soc.emit("round_timer", "SERVER", time_str);
+			});
+		} else {
+			clearInterval(round_timer_interval);
+			_.each(app_sockets, function(soc){
+				soc.emit("round_timer_end", "SERVER", "");
+			});
+		}
+	}
+	countdown_start = utils.time();
+	countdown_interval = setInterval(function(){
+		var diff_seconds = config.round_timer_countdown - (utils.time() - countdown_start);
+		if (diff_seconds <= 0){
+			clearInterval(countdown_interval);
+			io.sockets.emit("ping", "SERVER", "");
+			round_timer_time = utils.time();
+			round_timer_interval = setInterval(timer_func, config.round_timer_update_span * 1000);
+		} else {
+			io.sockets.emit("round_timer", "SERVER", "New round in " + diff_seconds + "s");
+		}
+	}, config.round_timer_update_span * 1000);
+}
+
+function clearRoundTimer(){
+	clearInterval(round_timer_interval);
+	_.each(app_sockets, function(soc){
+		soc.emit("round_timer_end", "SERVER", "");
+	});
 }
 
 function handler(req, res){}

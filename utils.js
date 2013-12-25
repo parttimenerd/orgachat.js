@@ -3,7 +3,7 @@ exports.formatTime = function(unix_seconds){
 }
 
 exports.time = function(){
-	return new Date().getTime() / 1000;
+	return Math.round(new Date().getTime() / 1000);
 }
 
 exports.pad = function(n) {

@@ -14,6 +14,9 @@
 			"2": ["AB", "AC"]
 		}
 	],
+	"round_duration": 60,
+	"round_timer_update_span": 1,
+	"round_timer_countdown": 20,
 	"ranking": {
 		"max_points_per_game": 100,
 		"non_participation_gives_zero_points": true,

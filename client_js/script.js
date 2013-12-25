@@ -1,6 +1,7 @@
 var approved = false,
 	group,
 	pwd,
+	header_text,
 	debug = false,
 	showConsoleLog = false;
 	
@@ -14,7 +15,8 @@ var ping = AudioFX("audio/ping", { formats: ['ogg', 'mp3'], volume: 0.5});
 onconnect = function(){
 	socket.on('pwd_okay', function(data){
 		$("#login_modal").modal('hide');
-		$("#header .group_name").text(group + "");
+		$("#header").html('Group <span class="group_name">' + group + '</span>');
+		header_text = $("#header").html();
 		approved = true;
 	});
 	socket.on('chatmsg', function(type, data){
@@ -37,7 +39,19 @@ onconnect = function(){
 		$(".result_input button").attr("disabled", false);
 	});
 	socket.on('ping', function(){
+		ping.stop();
 		ping.play();
+	});
+	socket.on("round_timer_start", function(){
+		$("#header").text("New round begins");
+		pingNTimes(3);
+	});
+	socket.on("round_timer", function(_, time_str){
+		$("#header").text(time_str)
+	});
+	socket.on("round_timer_end", function(){
+		$("#header").html(header_text);
+		pingNTimes(3);
 	});
 	socket.on("disconnect", function(){
 		if (approved){
@@ -59,6 +73,15 @@ onconnect = function(){
 	if (showConsoleLog)
 		console.log(socket);
 	trimSocketEvents(socket);
+}
+
+function pingNTimes(n){
+	for (i = 0; i < 3; i++){
+		setTimeout(function(){
+			ping.stop();
+			ping.play();
+		}, i * 1500);
+	}
 }
 
 function trimSocketEvents(soc){

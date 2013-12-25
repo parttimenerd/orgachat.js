@@ -8,9 +8,9 @@ The admin (group "admin") can set a game round and configure in the config file,
 - node.js with the following modules
 	- socket.io
 	- underscore
+	- winston
 
 ##TODO
-- add logging of actions
 - testing
 - manual
 

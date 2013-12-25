@@ -1,31 +1,53 @@
-﻿var app = require('http').createServer(handler),
-      io = require('socket.io').listen(app),
+﻿var   app = require('http').createServer(handler),
       fs = require('fs'),
       _ = require('underscore'),
 	  utils = require('./utils.js'),
 	  result_utils = require('./result_utils.js'),
 	  util = require("util"),
+	  winston = require("winston");
 	  results = {};
-      
-app.listen(8010);
 
 var config = JSON.parse(fs.readFileSync('config.json'));
 try {
 	results = JSON.parse(fs.readFileSync('results.json'));
 } catch(err){}
 
+//Set up loggers
+var socketio_logger = new (winston.Logger)({exitOnError: false});
+if (config.log_socketio_to_console)
+	socketio_logger.add(winston.transports.Console, {colorize: 'true'});
+if (config.socketio_logfile !== undefined && config.socketio_logfile !== "")
+	socketio_logger.add(winston.transports.File, {filename: config.socketio_logfile});
+var logger = new (winston.Logger)();
+if (config.log_to_console)
+	logger.add(winston.transports.Console, {colorize: 'true', handleExceptions: true});
+if (config.logfile !== undefined && config.logfile !== "")
+	logger.add(winston.transports.File, {filename: config.logfile, handleExceptions: true});
+
+io = require('socket.io').listen(app, {
+		logger: {
+        debug: socketio_logger.debug, 
+        info: socketio_logger.info, 
+        error: socketio_logger.error, 
+        warn: socketio_logger.warn
+    }
+}),
+    
+app.listen(8010);
+  
 var app_sockets = [];
 var part_sockets = [];	  
 var admin_socket;
 var results_changed = false;
 var round_data;
 
+logger.info("Ready");
+
 io.sockets.on('connection', function(socket){
 	socket.on('login', function(data){
-		//data = JSON.parse(data);
-		console.log(data);
 		if (config['pwds'][data['group']] === data['pwd']){
 			socket.emit('pwd_okay', 'SERVER', true);
+			logger.info("User of group " + data['group'] + " logged in.");
 			setTimeout(function(){
 				socket.group = data['group'];
 				socket.approved = true;
@@ -64,12 +86,14 @@ io.sockets.on('connection', function(socket){
 	socket.on('disconnect', function(){
 		if (socket["part_name"] !== undefined){
 			part_sockets = _.without(part_sockets, socket);
+			logger.info("Participant of team " + socket.part_name + " left.");
 			return;
 		}
 		if (!socket.approved)
 			return;
 		app_sockets = _.without(app_sockets, socket);
 		sendBotMsg(utils.time(), '', "User of group " + socket.group + " left.");
+		logger.info("User of group " + socket.group + " left.");
 		if (socket.group === "admin")
 			admin_socket = undefined;
 	})
@@ -84,13 +108,16 @@ io.sockets.on('connection', function(socket){
 			socket.emit("registered", "SERVER", "");
 			util.debug("Registered participant " + part_name);
 			socket.part_name = part_name;
+			logger.info("Participant of team " + part_name + " registered.");
 		}
 	});
 });
 
 function setRound(round_number){
-	if (config["rounds"].length <= round_number)
+	if (config["rounds"].length <= round_number){
 		adminBotMessage("no such round " + round_number + ", there are only rounds 0, ... , " + (config["rounds"].length - 1));
+		logger.info("Failed to set round number to " + round_number + ".");
+	}
 	round_data = {
 		"round_number": round_number
 	}
@@ -143,22 +170,28 @@ var msg_commands = {
 	"set_round": {
 		"help_text": "#set_round [round] - sets the round (round numbers start at zero)",
 		"function": function(args){
+			logger.info("Set round number to " + args[0] + ".");
 			setRound(Number(args[0]));
 		}
 	},
 	"start_round_timer": {
 		"help_text": "#start_round_timer - starts the round timer, counting down from the round_duration to zero",
 		"function": function(){
+			logger.info("Start round timer.");
 			startRoundTimer();
 		}
 	},
 	"end_round_timer": {
 		"help_text": "#end_round_timer - kills the round timer",
-		"function": clearRoundTimer
+		"function": function(){
+			logger.info("Clear round timer.");
+			clearRoundTimer()
+		}
 	},
 	"help": {
 		"help_text": "#help - shows this help",
 		"function": function(args){
+			logger.debug("Show help.");
 			var help_text = _.map(msg_commands, function(options, cmd){
 				return options.help_text;
 			}).sort().join("\n<br/>");
@@ -168,6 +201,7 @@ var msg_commands = {
 	"ranking": {
 		"help_text": "#ranking - shows the current ranking of the participant groups",
 		"function": function(args){
+			logger.debug("Calculate the current ranking.");
 			emitRanking(admin_socket);
 		}
 	},
@@ -207,10 +241,15 @@ function parseAdminMsg(msg){
 		var arr = msg.split(" ");
 		var cmd = arr[0].substr(1);
 		var args = arr.slice(1);
-		msg_commands[cmd]["function"](args);
+		if (cmd in msg_commands){
+			msg_commands[cmd]["function"](args);
+			logger.info("Execute command '" + msg + "'");
+		} else {
+			adminBotMessage("I don't understand: '" + msg + "'");
+		}
 	} catch (err){
 		adminBotMessage("I don't understand: '" + msg + "'");
-		util.error(err.name + ":" + err.stack);
+		logger.error("Error while executing command '" + msg + "': " + err.name + ", " + err.stack);
 	}
 }
 
@@ -239,11 +278,13 @@ function adminBotMessage(msg){
 setInterval(saveResultsInFile, 1000);
 
 function logResult(group, part_one, part_two, result_one, result_two){
-	logStr = utils.formatTime(utils.time()) + " | group " +  group + " | part_one: " + part_one 
+	var logStr = utils.formatTime(utils.time()) + " | group " +  group + " | part_one: " + part_one 
 	+ ", part_two: " + part_two + ", result_one: " + result_one + ", result_two: " + result_two + "\n";
-	fs.createWriteStream('result_log.txt', {'flags': 'a'}).write(logStr);
-	adminBotMessage("group " + group + " submitted result (" + part_one + ": " + result_one + " | "
-		+ part_two + ": " + result_two + ")");
+	fs.createWriteStream('logs/result_log.log', {'flags': 'a'}).write(logStr);
+	logStr = "group " + group + " submitted result (" + part_one + ": " + result_one + " | "
+		+ part_two + ": " + result_two + ")";
+	adminBotMessage(logStr);
+	logger.info(logStr);
 }
 
 function sendBotMsg(socket, own_msg, other_msg){
@@ -266,14 +307,14 @@ function sendBotMsg(socket, own_msg, other_msg){
 		_.each(_.without(app_sockets, socket), function(soc){
 			soc.emit('chatbot', 'SERVER', data);
 		});
-		logMsg(data['time'], 'chatbot', other_msg);
+		logMsg(data['time'], 'bot', other_msg);
 	}	
-	
 }
 
 function logMsg(time, group, msg){
-	logStr = utils.formatTime(time) + " | " + group + " | " + msg + "\n";
-	fs.createWriteStream('log.txt', {'flags': 'a'}).write(logStr);
+	logStr = utils.formatTime(time) + " | " + group + " | " + msg;
+	fs.createWriteStream('message_log.txt', {'flags': 'a'}).write(logStr + "\n");
+	logger.info("Message: " + logStr);
 }
 
 function emitGroupsOnline(socket){

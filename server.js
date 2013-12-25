@@ -20,9 +20,9 @@ if (config.socketio_logfile !== undefined && config.socketio_logfile !== "")
 	socketio_logger.add(winston.transports.File, {filename: config.socketio_logfile});
 var logger = new (winston.Logger)();
 if (config.log_to_console)
-	logger.add(winston.transports.Console, {colorize: 'true', handleExceptions: true});
+	logger.add(winston.transports.Console, {colorize: 'true', handleExceptions: true, level: config.log_level.console});
 if (config.logfile !== undefined && config.logfile !== "")
-	logger.add(winston.transports.File, {filename: config.logfile, handleExceptions: true});
+	logger.add(winston.transports.File, {filename: config.logfile, handleExceptions: true, level: config.log_level.file});
 
 io = require('socket.io').listen(app, {
 		logger: {
@@ -58,8 +58,10 @@ io.sockets.on('connection', function(socket){
 				app_sockets = _.uniq(app_sockets);
 				if (socket.group === "admin")
 					admin_socket = socket;
-				if (round_data !== undefined)
+				if (round_data !== undefined){
+					logger.info("Send round data to user of group " + socket.group);
 					emitRoundDataToSocket(socket);
+				}
 			}, 100);
 		}
 	});
@@ -106,9 +108,13 @@ io.sockets.on('connection', function(socket){
 		if (_.contains(config.participants, part_name)){
 			part_sockets.push(socket);
 			socket.emit("registered", "SERVER", "");
-			util.debug("Registered participant " + part_name);
+			logger.debug("Registered participant " + part_name);
 			socket.part_name = part_name;
 			logger.info("Participant of team " + part_name + " registered.");
+			if (round_data !== undefined){
+				logger.info("Send round data to participant of team " + socket.part_name);
+				emitRoundDataToSocket(socket);
+			}
 		}
 	});
 });
@@ -126,38 +132,37 @@ function setRound(round_number){
 }
 
 function emitRoundDataToSocket(socket){
-	if (round_data === undefined)
-		util.error("no round_data");
-	if (socket.group === "admin"){
-		adminBotMessage("Round " + round_data["round_number"]);
-	} else {
-		if (round_data[socket.group] !== undefined){
-			socket.emit("set_round", "SERVER", round_data[socket.group]);
+	if (socket.group !== undefined){
+		if (round_data === undefined)
+			logger.error("No round_data");
+		if (socket.group === "admin"){
+			adminBotMessage("Round " + round_data["round_number"]);
 		} else {
-			util.error("group " + socket.group + " has no round data");
+			if (round_data[socket.group] !== undefined){
+				socket.emit("set_round", "SERVER", round_data[socket.group]);
+			} else {
+				logger.error("Group " + socket.group + " has no round data");
+			}
+		}
+	} else if(socket.part_name !== undefined){
+		var next_station;
+		_.each(round_data, function(group_arr, group_name){
+			for (i = 0; i < group_arr.length; i++)
+				if (group_arr[i] === socket.part_name)
+					next_station = group_name;
+		})
+		if (next_station === undefined){
+			adminBotMessage("Participant " + socket.part_name + " has no station to go.");
+		} else {
+			socket.emit("set_station", "SERVER", next_station);
 		}
 	}
 }
 
 function emitRoundDataToAll(socket){
-	_.each(app_sockets, function(soc){
+	_.each(app_sockets.concat(part_sockets), function(soc){
 		emitRoundDataToSocket(soc);
 	})
-	_.each(part_sockets, function(part_soc){
-		var next_station;
-		_.each(round_data, function(group_arr, group_name){
-			util.debug(JSON.stringify(group_arr));
-			util.debug(part_soc.part_name);
-			for (i = 0; i < group_arr.length; i++)
-				if (group_arr[i] === part_soc.part_name)
-					next_station = group_name;
-		})
-		if (next_station === undefined){
-			adminBotMessage("Participant " + part_name + " has no station to go.");
-		} else {
-			part_soc.emit("set_station", "SERVER", next_station);
-		}
-	});
 }
 
 function emitToAllParticipants(cmd, data){
@@ -206,7 +211,7 @@ var msg_commands = {
 		}
 	},
 	"online_g": {
-		"help_text": "#online - shows the groups that are currently only with one or more users",
+		"help_text": "#online_g - shows the groups that are currently only with one or more users",
 		"function": function(args){
 			emitGroupsOnline(admin_socket);
 		}

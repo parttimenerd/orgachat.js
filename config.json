@@ -25,5 +25,9 @@
 	"socketio_logfile": "logs/socketio.log",
 	"log_socketio_to_console": false,
 	"log_to_console": true,
-	"logfile": "logs/log.log"
+	"logfile": "logs/log.log",
+	"log_level":{
+		"console": "info",
+		"file": "info"
+	}
 }

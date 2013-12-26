@@ -21,21 +21,21 @@ var _ = require('underscore');
 exports.ranking = function(config, results){
 	var min_max_points = minMaxPoints(results);
 	var norm_results = calculateNormalizedResults(config, min_max_points, results);
-	var norm_part_results = calculateNormParticipantResults(config, norm_results);
-	var part_group_results = calculateParticipantGroupResults(config, norm_part_results);
-	var part_group_names = _.keys(part_group_results);
-	var ranking = part_group_names.sort(function(a, b){
-		return part_group_results[a].normalized_points - part_group_results[b].normalized_points;
+	var norm_team_results = calculateNormTeamResults(config, norm_results);
+	var main_team_results = calculateMainTeamResults(config, norm_team_results);
+	var main_team_names = _.keys(main_team_results);
+	var ranking = main_team_names.sort(function(a, b){
+		return main_team_results[a].normalized_points - main_team_results[b].normalized_points;
 	});
 	return ranking;
 }
 
 function minMaxPoints(results){
-	return _.reduce(results, function(memo, group_map, group){
+	return _.reduce(results, function(memo, group_map, station){
 		var points = _.map(ground_map, function(val){
 			return val;
 		});
-		memo[group] = [_.min(points), _.max(points)];
+		memo[station] = [_.min(points), _.max(points)];
 	});
 }
 
@@ -48,85 +48,84 @@ returns {
 	[...]
 }
 */
-function calculateParticipantGroupResults(config, norm_part_results){
-	var part_groups = config.part_groups;
-	var group_results = {};
-	_.each(config.part_groups, function(member_groups, part_group){
+function calculateMainTeamResults(config, norm_team_results){
+	var main_team_results = {};
+	_.each(config.main_teams, function(member_teams, main_team){
 		var rounds = 0;
 		var point_sum = 0;
-		_.each(member_groups, function(member_group){
-			rounds += member_group.counting_rounds;
-			point_sum += member_group.normalized_points;
+		_.each(member_teams, function(member_team){
+			rounds += member_team.counting_rounds;
+			point_sum += member_team.normalized_points;
 		});
-		group_results[part_group] = {
+		main_team_results[main_team] = {
 			"counting_rounds": rounds,
 			"normalized_points": point_sum / rounds 
 		};
 		
 	});
 	if (config.ranking.normalize_overall_points){
-		var point_arr = _.map(group_results, function(group_map, part_group){
-			return group_map.normalized_points;
+		var point_arr = _.map(main_team_results, function(main_team_result, main_team){
+			return main_team_result.normalized_points;
 		})
 		var min_sum = _.min(point_arr);
 		var max_sum = _.max(point_arr);
-		_.each(group_results, function(group_map, part_group){
-			group_results[part_group].normalized_points = calculateNormalizedResult(config,
-										min_sum, max_sum, group_map.normalized_points);										
+		_.each(main_team_results, function(main_team_result, main_team){
+			main_team_results[main_team].normalized_points = calculateNormalizedResult(config,
+										min_sum, max_sum, main_team_result.normalized_points);										
 		});
 	}
-	return group_results
+	return main_team_results;
 }
 
 /**
 returns {
-	[part]: {
+	[team]: {
 		counting_rounds: [...],
 		normalized_points: [...]
 	}
 	[...]
 }
 */
-function calculateNormParticipantResults(config, normalized_results){
+function calculateNormTeamResults(config, normalized_results){
 	var non_part_zero = config.ranking.non_participation_gives_zero_points;
 	var norm_ov_points = config.ranking.normalize_overall_points;
-	var part_results = {};
-	_.each(config.participants, function(part){
-		part_results[part] = {
-			counting_rounds: 0,
-			normalized_points: 0
+	var team_results = {};
+	_.each(config.teams, function(team){
+		team_results[team] = {
+			"counting_rounds": 0,
+			"normalized_points": 0
 		};
 	});
-	_.each(normalized_results, function(group_map, group_name){
-		_.each(config.participants, function(part){
-			if (group_map[part] !== undefined){
-				part_results[part].counting_rounds++;
-				part_results[part].normalized_points
+	_.each(normalized_results, function(station_map, station_name){
+		_.each(config.teams, function(team){
+			if (station_map[team] !== undefined){
+				team_results[team].counting_rounds++;
+				team_results[team].normalized_points
 			} else if(non_part_zero){
-				part_results[part].counting_rounds++;
+				team_results[team].counting_rounds++;
 			}
 		});
 	});
 	if (norm_ov_points){
-		var point_arr = _.map(part_results, function(part_map, part){
-			return part_map.normalized_points;
+		var point_arr = _.map(team_results, function(team_result, team){
+			return team_result.normalized_points;
 		})
 		var min_sum = _.min(point_arr);
 		var max_sum = _.max(point_arr);
-		_.each(part_results, function(part_map, part){
-			part_results[part].normalized_points = calculateNormalizedResult(config,
-										min_sum, max_sum, part_map.normalized_points);										
+		_.each(team_results, function(team_result, team){
+			team_results[team].normalized_points = calculateNormalizedResult(config,
+										min_sum, max_sum, team_result.normalized_points);										
 		});
 	}
-	return part_results;
+	return team_results;
 }
 
 function calculateNormalizedResults(config, min_max_points, results){
-	return _.reduce(results, function(memo, group, group_name){
-		var min = min_max_points[group_name][0];
-		var max = max_min_points[group_name][1];
-		memo[group_name] = _.reduce(group, function(memo, points, part){
-			memo[part] = calculateNormalizedResult(config, min, max, points);
+	return _.reduce(results, function(memo, group, name){
+		var min = min_max_points[name][0];
+		var max = max_min_points[name][1];
+		memo[name] = _.reduce(station, function(memo, points, team){
+			memo[team] = calculateNormalizedResult(config, min, max, points);
 		});
 	});
 }

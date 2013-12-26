@@ -1,28 +1,26 @@
 var approved = false,
-	group,
+	station,
 	pwd,
 	header_text,
 	debug = false,
 	showConsoleLog = false;
-	
-var currentReconnectCounter = 0;
-
-var socket = io.connect(window.location.protocol + "//" + window.location.host + ":8010");
 
 var ping = AudioFX("audio/ping", { formats: ['ogg', 'mp3'], volume: 0.5});
 
-onconnect = function(){
+var socket = io.connect(window.location.protocol + "//" + window.location.host + ":8010");
+
+socket.on('connect', function(){
 	if (pwd !== undefined){
-		socket.emit("login", {'pwd': pwd, 'group': group, 'show_login_msg': false});
+		socket.emit("login", {'pwd': pwd, 'station': station, 'show_login_msg': false});
 	}
 	socket.on('pwd_okay', function(data){
 		$("#login_modal").modal('hide');
-		$("#header").html('Group <span class="group_name">' + group + '</span>');
+		$("#header").html('Station <span class="station_name">' + station + '</span>');
 		header_text = $("#header").html();
 		approved = true;
 	});
 	socket.on('chatmsg', function(type, data){
-		data["css_class"] = data["group"] == "admin" ? "success" : "";
+		data["css_class"] = data["station"] == "admin" ? "success" : "";
 		msg_table.append(msg_template(data));
 		scrollChat();
 		if (showConsoleLog)
@@ -36,8 +34,8 @@ onconnect = function(){
 			console.log(data);
 	});
 	socket.on('set_round', function(type, data){
-		$(".result_input span.part_one").text(data[0]);
-		$(".result_input span.part_two").text(data[1]);
+		$(".result_input span.team_one").text(data[0]);
+		$(".result_input span.team_two").text(data[1]);
 		$(".result_input button").attr("disabled", false);
 		pingNTimes(1);
 	});
@@ -55,28 +53,10 @@ onconnect = function(){
 		$("#header").html(header_text);
 		pingNTimes(3);
 	});
-	/*socket.on("disconnect", function(){
-		if (approved){
-			if (showConsoleLog)
-				console.log("reconnecting...");
-			timeout = setTimeout(function(){
-				socket = io.connect(window.location.protocol + "//" + window.location.host + ":8010");
-				currentReconnectCounter++;
-				socket.on('connect', function(){ 
-					if (showConsoleLog)
-						console.log("reconnected");
-					onconnect();
-				});
-				socket.emit("login", {'pwd': pwd, 'group': group, 'show_login_msg': false});
-			}, 2000);
-		}
-	});*/
 	if (showConsoleLog)
 		console.log(socket);
 	trimSocketEvents(socket);
-}
-
-socket.on('connect', onconnect);
+});
 
 function pingNTimes(n){
 	for (i = 0; i < 3; i++){
@@ -105,7 +85,6 @@ function trimSocketEvents(soc){
 }
 
 function scrollChat(){
-	//$('html, body').animate({scrollTop: $('body')[0].scrollHeight - $(window).height()}, 200);
 	document.getElementById('bottom').scrollIntoView();
 }
 
@@ -126,18 +105,24 @@ chat_input_line_btn.click(function(){
 	chat_input_line.val("");
 });
 
+$("#passwordInput").inputHistory({
+	enter: function(){
+		 $("#loginModalBtn").click();
+	}
+});
+
 $("#loginModalBtn").click(function(){
 	pwd = $("#passwordInput").val();
-	group = $("#groupInput").val();
-	socket.emit("login", {'pwd': pwd, 'group': group});
+	station = $("#stationInput").val();
+	socket.emit("login", {'pwd': pwd, 'station': station});
 });
 
 function sendResult(){
 	var data = {
-		"part_one": $(".result_input span.part_one").text(),
-		"part_two": $(".result_input span.part_two").text(),
-		"result_one": $(".result_input input.part_one").val(),
-		"result_two": $(".result_input input.part_two").val()
+		"team_one": $(".result_input span.team_one").text(),
+		"team_two": $(".result_input span.team_two").text(),
+		"result_one": $(".result_input input.team_one").val(),
+		"result_two": $(".result_input input.team_two").val()
 	}
 	socket.emit("result", data);
 }
@@ -145,9 +130,9 @@ function sendResult(){
 $(".result_input button").click(sendResult);
 
 if (debug){
-	socket.emit("login", {'pwd': "abc", 'group': "1"});
+	socket.emit("login", {'pwd': "abc", 'station': "1"});
 	pwd = "abc";
-	group = "1";
+	station = "1";
 }
 
 function sendChatMessage(msg){

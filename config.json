@@ -1,11 +1,17 @@
 {
-	"pwds": {
-		"1": "abc",
-		"2": "abc",
-		"admin": "abcd"
+	"stations": {
+		"1": {
+			"password": "abc"
+		},
+		"2": {
+			"password": "abc"
+		},
+		"admin": {
+			"password": "abcd"
+		}
 	},
-	"participants": ["AB", "AC"],
-	"part_groups": {
+	"teams": ["AB", "AC"],
+	"main_teams": {
 		"Ratefuechse": ["AB", "AC"]
 	},
 	"rounds": [

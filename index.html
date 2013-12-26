@@ -1,44 +1,44 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
+
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>orgachat.js by parttimenerd</title>
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script src="javascripts/respond.js"></script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <!--[if lt IE 8]>
-    <link rel="stylesheet" href="stylesheets/ie.css">
-    <![endif]-->
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="orgachat.js : A node.js based chat, used to help organizing olympia like games" />
 
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>orgachat.js</title>
   </head>
+
   <body>
-      <div id="header">
-        <nav>
-          <li class="fork"><a href="https://github.com/parttimenerd/orgachat.js">View On GitHub</a></li>
-          <li class="downloads"><a href="https://github.com/parttimenerd/orgachat.js/zipball/master">ZIP</a></li>
-          <li class="downloads"><a href="https://github.com/parttimenerd/orgachat.js/tarball/master">TAR</a></li>
-          <li class="title">DOWNLOADS</li>
-        </nav>
-      </div><!-- end header -->
 
-    <div class="wrapper">
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/parttimenerd/orgachat.js">View on GitHub</a>
 
-      <section>
-        <div id="title">
-          <h1>orgachat.js</h1>
-          <p>A node.js based chat, used to help organizing olympia like games</p>
-          <hr>
-          <span class="credits left">Project maintained by <a href="https://github.com/parttimenerd">parttimenerd</a></span>
-          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
-        </div>
+          <h1 id="project_title">orgachat.js</h1>
+          <h2 id="project_tagline">A node.js based chat, used to help organizing olympia like games</h2>
 
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/parttimenerd/orgachat.js/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/parttimenerd/orgachat.js/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
         <h3>
+<a name="synopnis" class="anchor" href="#synopnis"><span class="octicon octicon-link"></span></a>Synopnis</h3>
+
+<p>This project tries to simplify the task of organizing olympia like games. In these games teams play games against each other at several different stations. Teams can be split into subteams, so you're able to mix teams.</p>
+
+<p>It's based on a chat and can be configured via the <code>config.json</code> file. </p>
+
+<h3>
 <a name="requirements" class="anchor" href="#requirements"><span class="octicon octicon-link"></span></a>Requirements</h3>
 
 <ul>
@@ -56,23 +56,98 @@
 <a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h3>
 
 <ol>
-<li>Download the package and place in into a browser accesible folder of you apache web server. (I assume in the following, that you've choses ´orgachat.js´.)</li>
+<li>Download the package and place in into a browser accesible folder of you apache web server. (I assume in the following, that you've choses <code>orgachat.js</code>.)</li>
 <li>Install the node.js required modules via npm.</li>
-<li>Configure the application via its ´config.json´ file.</li>
+<li>Configure the application via its <code>config.json</code> file.</li>
 <li>Distribute the passwords and station/team names.</li>
-<li>Login as admin at ´orgachat.js´.</li>
-<li>At least one person of each station should login at ´orgachat.js´ and at least one member of each team should register at ´orgachat.js/part´.</li>
-<li>To tell all others that a new round will begin soon, type ´#set_round N´ in to the chat, with ´N´ being the number of the round (round numbers start at zero).
+<li>Login as admin at <code>orgachat.js</code>.</li>
+<li>At least one person of each station should login at <code>orgachat.js</code> and at least one member of each team should register at <code>orgachat.js/team</code>.</li>
+<li>To tell all others that a new round will begin soon, type <code>#set_round N</code> in to the chat, with <code>N</code> being the number of the round (round numbers start at zero).
 Team members see then, the station they've to play on next and station people see the next to teams that play against each other in this round.</li>
-<li>Start the round (specifically its timer) by typing ´#start_round_timer´. A timer will now show everyone logged in/registered in the application the count down till the start of the round and after the countdown the time live left in this round.</li>
-<li>The station crew no enters the points each team achieved at their station and send it to the admin by clicking the ´Store´ button.</li>
+<li>Start the round (specifically its timer) by typing <code>#start_round_timer</code>. A timer will now show everyone logged in/registered in the application the count down till the start of the round and after the countdown the time live left in this round.</li>
+<li>The station crew no enters the points each team achieved at their station and send it to the admin by clicking the <code>Store</code> button.</li>
 <li>Return to 7. if the last round wasn't the final.</li>
-<li>Show the group ranking by typing ´#ranking´.</li>
-</ol><p>And of course, this application, based on a chat, can be used as a chat. </p>
-      </section>
+<li>Show the group ranking by typing <code>#ranking</code>.</li>
+</ol><p>And of course, this application, based on a chat, can be used as a chat.</p>
 
+<h3>
+<a name="configuration" class="anchor" href="#configuration"><span class="octicon octicon-link"></span></a>Configuration</h3>
+
+<p>Configurations are done via editing the <code>config.json</code> file.</p>
+
+<p>The following is an explanation of the config file by a (constructed) example.</p>
+
+<div class="highlight highlight-JSON"><pre>    <span class="p">{</span>
+        <span class="err">//Stations</span> <span class="err">with</span> <span class="err">their</span> <span class="err">name</span> <span class="err">and</span> <span class="err">password.</span>
+       <span class="err">//Station</span> <span class="err">names</span> <span class="err">shouldn't</span> <span class="err">contain</span> <span class="err">any</span> <span class="err">whitespace</span> <span class="err">and</span> <span class="err">be</span> <span class="err">short.</span>
+    <span class="nt">"stations"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">"1"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">"password"</span><span class="p">:</span> <span class="s2">"efa43"</span>
+        <span class="p">},</span>
+        <span class="nt">"2"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">"password"</span><span class="p">:</span> <span class="s2">"drtz23"</span>
+        <span class="p">},</span>
+                <span class="err">/*</span> <span class="err">An</span> <span class="err">admin</span> <span class="err">station</span> <span class="err">(or</span> <span class="err">user)</span> <span class="err">is</span> <span class="err">required.</span> <span class="err">*/</span>
+        <span class="nt">"admin"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">"password"</span><span class="p">:</span> <span class="s2">"aawer024"</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+        <span class="err">//The</span> <span class="err">teams</span> <span class="err">participating</span> <span class="err">in</span> <span class="err">the</span> <span class="err">game.</span>
+        <span class="err">//Their</span> <span class="err">shouldn't</span> <span class="err">also</span> <span class="err">contain</span> <span class="err">any</span> <span class="err">whitespace</span> <span class="err">and</span> <span class="err">shouldn't</span> <span class="err">be</span> <span class="err">longer</span> <span class="err">than</span> <span class="err">8</span> <span class="err">characters.</span>
+    <span class="nt">"teams"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"Team1"</span><span class="p">,</span> <span class="s2">"Team2"</span><span class="p">,</span> <span class="s2">"Team3"</span><span class="p">,</span> <span class="s2">"Team4"</span><span class="p">],</span>
+        <span class="err">//The</span> <span class="err">main</span> <span class="err">teams</span> <span class="err">consist</span> <span class="err">of</span> <span class="err">a</span> <span class="err">group</span> <span class="err">of</span> <span class="err">teams.</span> <span class="err">This</span> <span class="err">allows</span> <span class="err">splitting</span> <span class="err">teams.</span>
+    <span class="nt">"main_teams"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">"Ratefuechse"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"Team1"</span><span class="p">,</span> <span class="s2">"Team3"</span><span class="p">],</span>
+                <span class="nt">"Ratewoelfe"</span><span class="p">:</span>  <span class="p">[</span><span class="s2">"Team4"</span><span class="p">,</span> <span class="s2">"Team4"</span><span class="p">]</span>
+    <span class="p">},</span>
+        <span class="err">//The</span> <span class="err">different</span> <span class="err">rounds.</span> <span class="err">The</span> <span class="err">array</span> <span class="err">index</span> <span class="err">ressembles</span> <span class="err">the</span> <span class="err">round</span> <span class="err">number.</span>
+    <span class="nt">"rounds"</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">"1"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"Team1"</span><span class="p">,</span> <span class="s2">"Team3"</span><span class="p">],</span> <span class="err">//team1</span> <span class="err">plays</span> <span class="err">in</span> <span class="err">the</span> <span class="err">first</span> <span class="err">round</span> <span class="err">(number</span> <span class="err">0)</span>
+                                                 <span class="err">//against</span> <span class="err">team3</span> <span class="err">at</span> <span class="err">station</span> <span class="err">1</span> 
+            <span class="nt">"2"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"Team2"</span><span class="p">,</span> <span class="s2">"Team4"</span><span class="p">]</span>
+        <span class="p">},</span>
+                <span class="p">{</span>
+            <span class="nt">"1"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"Team2"</span><span class="p">,</span> <span class="s2">"Team3"</span><span class="p">],</span> <span class="err">//team1</span> <span class="err">plays</span> <span class="err">in</span> <span class="err">the</span> <span class="err">second</span> <span class="err">round</span> <span class="err">(number</span> <span class="err">1)</span>
+                                                 <span class="err">//against</span> <span class="err">team3</span> <span class="err">at</span> <span class="err">station</span> <span class="err">1</span> 
+            <span class="nt">"2"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"Team1"</span><span class="p">,</span> <span class="s2">"Team4"</span><span class="p">]</span>
+        <span class="p">},</span>
+    <span class="p">],</span>
+    <span class="nt">"round_duration"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>             <span class="err">//The</span> <span class="err">duration</span> <span class="err">of</span> <span class="err">a</span> <span class="err">round</span> <span class="err">in</span> <span class="err">seconds</span>
+    <span class="nt">"round_timer_update_span"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>     <span class="err">//The</span> <span class="err">time</span> <span class="err">between</span> <span class="err">to</span> <span class="err">timer</span> <span class="err">updates</span> <span class="err">in</span> <span class="err">seconds</span>
+    <span class="nt">"round_timer_countdown"</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>      <span class="err">//The</span> <span class="err">length</span> <span class="err">of</span> <span class="err">the</span> <span class="err">countdown</span> <span class="err">in</span> <span class="err">seconds</span> 
+                                          <span class="err">//before</span> <span class="err">the</span> <span class="err">actual</span> <span class="err">round</span> <span class="err">starts</span>
+    <span class="err">//Settings</span> <span class="err">concerning</span> <span class="err">the</span> <span class="err">ranking</span> <span class="err">calculation</span>
+        <span class="nt">"ranking"</span><span class="p">:</span> <span class="p">{</span> 
+        <span class="nt">"max_points_per_game"</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>                  <span class="err">//Maximum</span> <span class="err">number</span> <span class="err">of</span> <span class="err">points</span> <span class="err">a</span> <span class="err">team</span> <span class="err">can</span> 
+                                                             <span class="err">//achieve</span> <span class="err">at</span> <span class="err">one</span> <span class="err">station</span>
+        <span class="nt">"non_participation_gives_zero_points"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span> <span class="err">//Does</span> <span class="err">it</span> <span class="err">count</span> <span class="err">as</span> <span class="err">zero</span> <span class="err">points</span> <span class="err">if</span> <span class="err">a</span> <span class="err">team</span>
+                                                              <span class="err">//doesn't</span> <span class="err">play</span> <span class="err">at</span> <span class="err">a</span> <span class="err">station?</span>
+        <span class="nt">"normalize_overall_points"</span><span class="p">:</span> <span class="kc">true</span>              <span class="err">//Normalize</span> <span class="err">the</span> <span class="err">points</span> <span class="err">each</span> <span class="err">main</span> <span class="err">group</span> <span class="err">gained</span>
+    <span class="p">},</span>
+        <span class="err">//Some</span> <span class="err">logging</span> <span class="err">concerned</span> <span class="err">settings</span>
+    <span class="nt">"socketio_logfile"</span><span class="p">:</span> <span class="s2">"logs/socketio.log"</span><span class="p">,</span>
+    <span class="nt">"log_socketio_to_console"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nt">"log_to_console"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nt">"logfile"</span><span class="p">:</span> <span class="s2">"logs/log.log"</span><span class="p">,</span>
+    <span class="nt">"log_level"</span><span class="p">:{</span>
+        <span class="nt">"console"</span><span class="p">:</span> <span class="s2">"info"</span><span class="p">,</span>
+        <span class="nt">"file"</span><span class="p">:</span> <span class="s2">"info"</span>
+    <span class="p">}</span>
+   <span class="p">}</span>
+</pre></div>
+      </section>
     </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">orgachat.js maintained by <a href="https://github.com/parttimenerd">parttimenerd</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
     
+
   </body>
 </html>

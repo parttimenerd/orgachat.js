@@ -1,0 +1,22 @@
+{
+	"name": "orgachat.js",
+	"version": "0.5.0",
+	"description": "A node.js based chat, used to help organizing olympia like games.",
+	"homepage": "http://parttimenerd.github.io/orgachat.js/",
+	"bugs": { 
+		"url" : "https://github.com/parttimenerd/orgachat.js/issues",
+		"email": "me@mostlynerdless.de"
+	},
+	"contributors": ["Johannes Bechberger <me@mostlynerdless.de> (http://mostlynerdless.de)"],
+	"license": "MIT",
+	"main": "server.js",
+	"dependencies" :{
+		"socket.io": "~0.9",
+		"underscore": "~1.5",
+		"winston": "~0.7"
+	},
+	"repository" : { 
+		"type" : "git",
+		"url" : "http://github.com/parttimenerd/orgachat.js.git"
+  }
+}

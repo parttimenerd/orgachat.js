@@ -1,31 +1,36 @@
-{
+   {
 	"stations": {
 		"1": {
-			"password": "abc"
+			"password": "efa43"
 		},
 		"2": {
-			"password": "abc"
+			"password": "drtz23"
 		},
 		"admin": {
-			"password": "abcd"
+			"password": "aawer024"
 		}
 	},
-	"teams": ["AB", "AC"],
+	"teams": ["Team1", "Team2", "Team3", "Team4"],
 	"main_teams": {
-		"Ratefuechse": ["AB", "AC"]
+		"Ratefuechse": ["Team1", "Team3"],
+		"Ratewoelfe":  ["Team4", "Team4"]
 	},
 	"rounds": [
 		{
-			"1": ["AB", "AC"],
-			"2": ["AB", "AC"]
+			"1": ["Team1", "Team3"],
+			"2": ["Team2", "Team4"]
+		},
+        {
+			"1": ["Team2", "Team3"],
+			"2": ["Team1", "Team4"]
 		}
 	],
-	"round_duration": 60,
+	"round_duration": 60,	  
 	"round_timer_update_span": 1,
 	"round_timer_countdown": 20,
-	"ranking": {
+	"ranking": { 
 		"max_points_per_game": 100,
-		"non_participation_gives_zero_points": true,
+		"non_participation_gives_zero_points": false,
 		"normalize_overall_points": true
 	},
 	"socketio_logfile": "logs/socketio.log",
@@ -36,4 +41,4 @@
 		"console": "info",
 		"file": "info"
 	}
-}
+   }

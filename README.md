@@ -70,7 +70,7 @@ The following is an explanation of the config file by a (constructed) example.
 			"1": ["Team2", "Team3"], //team1 plays in the second round (number 1)
 									 //against team3 at station 1 
 			"2": ["Team1", "Team4"]
-		},
+		}
 	],
 	"round_duration": 60,			  //The duration of a round in seconds
 	"round_timer_update_span": 4,	  //The time between to timer updates in seconds

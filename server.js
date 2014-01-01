@@ -63,7 +63,7 @@ io.sockets.on('connection', function(socket){
 				}
 			}, 100);
 		} else {
-			debug.info("Login failed: " + JSON.stringify(data));
+			logger.info("Login failed: " + JSON.stringify(data));
 		}
 	});
 	socket.on('chatmsg', function(data){

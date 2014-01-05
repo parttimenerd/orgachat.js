@@ -38,7 +38,7 @@
 	"log_to_console": true,
 	"logfile": "logs/log.log",
 	"log_level":{
-		"console": "info",
-		"file": "info"
+		"console": "debug",
+		"file": "debug"
 	}
    }

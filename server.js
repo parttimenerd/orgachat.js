@@ -15,9 +15,9 @@ try {
 //Set up loggers
 var socketio_logger = new (winston.Logger)({exitOnError: false});
 if (config.log_socketio_to_console)
-	socketio_logger.add(winston.transports.Console, {colorize: 'true'});
+	socketio_logger.add(winston.transports.Console, {colorize: 'true', level: config.log_level.console});
 if (config.socketio_logfile !== undefined && config.socketio_logfile !== "")
-	socketio_logger.add(winston.transports.File, {filename: config.socketio_logfile});
+	socketio_logger.add(winston.transports.File, {filename: config.socketio_logfile, level: config.log_level.file});
 var logger = new (winston.Logger)();
 if (config.log_to_console)
 	logger.add(winston.transports.Console, {colorize: 'true', handleExceptions: true, level: config.log_level.console});
@@ -41,10 +41,13 @@ var admin_socket;
 var results_changed = false;
 var round_data;
 
+var current_round;
+
 logger.info("Ready");
 
 io.sockets.on('connection', function(socket){
 	socket.on('login', function(data){
+		logger.debug('login: ' + JSON.stringify(data));
 		if (data.station !== undefined && config.stations[data['station']].password === data.pwd){
 			socket.emit('pwd_okay', 'SERVER', true);
 			setTimeout(function(){
@@ -67,6 +70,7 @@ io.sockets.on('connection', function(socket){
 		}
 	});
 	socket.on('chatmsg', function(data){
+		logger.debug('chatmsg: ' + JSON.stringify(data));
 		if (socket.approved){
 			if (data.msg === undefined || data.msg.length === 0)
 				return;
@@ -99,13 +103,15 @@ io.sockets.on('connection', function(socket){
 			admin_socket = undefined;
 	})
 	socket.on('result', function(data){
+		logger.debug('data: ' + JSON.stringify(data));
 		if (!socket.approved)
 			socket.disconnect('unauthorized')
 		storeResult(socket.station, data.team_one, data.team_two, data.result_one, data.result_two);
 	});
 	socket.on("register_part", function(team_name){
+		logger.debug('register_part: ' + JSON.stringify(team_name));
 		if (_.contains(config.teams, team_name)){
-			part_sockets.push(socket);
+			team_sockets.push(socket);
 			socket.emit("registered", "SERVER", "");
 			logger.debug("Registered member of team " + team_name);
 			socket.team = team_name;
@@ -119,7 +125,7 @@ io.sockets.on('connection', function(socket){
 });
 
 function setRound(round_number){
-	if (config.rounds.length <= round_number){
+	if (config.rounds.length <= round_number || round_number === NaN){
 		adminBotMessage("no such round " + round_number + ", there are only rounds 0, ... , " + (config.rounds.length - 1));
 		logger.info("Failed to set round number to " + round_number + ".");
 	}
@@ -178,10 +184,14 @@ function emitToAllStations(cmd, data){
 
 var msg_commands = {
 	"set_round": {
-		"help_text": "#set_round [round] - sets the round (round numbers start at zero)",
+		"help_text": "#set_round [round] - sets the round (round numbers start at )",
 		"function": function(args){
-			logger.info("Set round number to " + args[0] + ".");
-			setRound(Number(args[0]));
+			var number = Number(args[0]);
+			if (current_round !== number && number !== NaN && args[0] !== undefined){
+				current_round = Number(args[0]);
+				logger.info("Set round number to " + args[0] + ".");
+				setRound(Number(args[0]));
+			}
 		}
 	},
 	"start_round_timer": {
@@ -246,6 +256,8 @@ var msg_commands = {
 
 function parseAdminMsg(msg){
 	var arr = msg.trim().split("#");
+	if (arr === undefined || arr.length === 0)
+		return;
 	if (msg[0] === "#")
 		execCommand(arr[0]);
 	for (i = 1; i < arr.length; i++)
@@ -253,7 +265,7 @@ function parseAdminMsg(msg){
 }
 
 function execCommand(text){
-	if (text.length === 0)
+	if (text === undefined || text.length === 0)
 		return;
 	var cmd_and_args = text.split(" ");
 	var cmd = cmd_and_args[0];
@@ -262,9 +274,10 @@ function execCommand(text){
 	if (cmd === "" || cmd === undefined)
 		return;
 	try {
+		var stack = new Error().stack;
 		if (cmd in msg_commands){
 			msg_commands[cmd]["function"](args);
-			logger.info("Execute command '" + text + "'");
+			logger.info("Executed command '" + text + "'");
 		} else {
 			adminBotMessage("I don't understand: '" + text + "'");
 		}

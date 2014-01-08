@@ -125,6 +125,10 @@ function sendResult(){
 		"result_two": $(".result_input input.team_two").val()
 	}
 	socket.emit("result", data);
+	$(".result_input span.team_one").text("");
+	$(".result_input span.team_two").text("");
+	$(".result_input input.team_one").val("");
+	$(".result_input input.team_two").val("");
 }
 
 $(".result_input button").click(sendResult);

@@ -287,7 +287,7 @@ function execCommand(text){
 	}
 }
 
-function storeResult(station, team_one, part_two, result_one, result_two){
+function storeResult(station, team_one, team_two, result_one, result_two){
 	if (results.station === undefined)
 		results.station = {};
 	results.station.team_one = Number(result_one);

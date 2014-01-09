@@ -5,7 +5,6 @@ var approved = false,
 	debug = false,
 	showConsoleLog = false;
 
-var ping = AudioFX("audio/ping", { formats: ['ogg', 'mp3'], volume: 0.5});
 
 var socket = io.connect(window.location.protocol + "//" + window.location.host + ":8010");
 
@@ -57,17 +56,6 @@ socket.on('connect', function(){
 		console.log(socket);
 	trimSocketEvents(socket);
 });
-
-function pingNTimes(n){
-	for (i = 0; i < 3; i++){
-		setTimeout(function(){
-			try {
-				ping.stop();
-			} catch(err){}
-			ping.play();
-		}, i * 1500);
-	}
-}
 
 function trimSocketEvents(soc){
 	for (eventName in soc.$events){
@@ -147,4 +135,25 @@ function sendChatMessage(msg){
 
 if (!debug){
 	$("#login_modal").modal('show');
+}
+
+$.mbAudio.sounds = {
+	soundSprite: {
+		id: "soundSprite",
+		ogg: "audio/ping.ogg",
+		mp3: "audio/ping.mp3",
+		sprite:{
+			ping: {id: "ping", start: 0, end: 2, loop: false},
+		}
+	}
+};
+
+$(document).on("initAudio", function () {
+	$.mbAudio.pause('soundSprite', audioIsReady);
+});
+
+function pingNTimes(n){
+	for (i = 0; i < n; i++){
+		$.mbAudio.queue.add('soundSprite', 'ping');
+	}
 }

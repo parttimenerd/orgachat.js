@@ -194,15 +194,15 @@ var msg_commands = {
 			}
 		}
 	},
-	"start_round_timer": {
-		"help_text": "#start_round_timer - starts the round timer, counting down from the round_duration to zero",
+	"start_round": {
+		"help_text": "#start_round - starts the round (timer), counting down from the round_duration to zero",
 		"function": function(){
-			logger.info("Start round timer.");
+			logger.info("Start round.");
 			startRoundTimer();
 		}
 	},
-	"end_round_timer": {
-		"help_text": "#end_round_timer - kills the round timer",
+	"end_round": {
+		"help_text": "#end_round - kills the round timer",
 		"function": function(){
 			logger.info("Clear round timer.");
 			clearRoundTimer()

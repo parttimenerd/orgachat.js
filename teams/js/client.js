@@ -36,22 +36,31 @@ socket.on("connect", function(){
 		pingNTimes(3);
 	});
 });
-				
-var ping = AudioFX("audio/ping", { formats: ['ogg', 'mp3'], volume: 0.5});
-
-function pingNTimes(n){
-	for (i = 0; i < 3; i++){
-		setTimeout(function(){
-			try {
-				ping.stop();
-			} catch(err){}
-			ping.play();
-		}, i * 1500);
-	}
-}
 
 $("#register_modal_btn").click(function(){
 	part_name = $("#part_input").val();
 	socket.emit("register_part", part_name);
 	location.href += "?" + part_name;
 });
+
+
+$.mbAudio.sounds = {
+	soundSprite: {
+		id: "soundSprite",
+		ogg: "audio/ping.ogg",
+		mp3: "audio/ping.mp3",
+		sprite:{
+			ping: {id: "ping", start: 0, end: 2, loop: false},
+		}
+	}
+};
+
+$(document).on("initAudio", function () {
+	$.mbAudio.pause('soundSprite', audioIsReady);
+});
+
+function pingNTimes(n){
+	for (i = 0; i < n; i++){
+		$.mbAudio.queue.add('soundSprite', 'ping');
+	}
+}
